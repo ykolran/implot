@@ -434,12 +434,12 @@ void Demo_StairstepPlots() {
         ImPlotSpec spec;
         spec.Flags = flags;
         spec.FillAlpha = 0.25f;
-        spec.Marker = ImPlotMarker_Circle;        
+        spec.Marker = ImPlotMarker_Auto;        
         ImPlot::PlotStairs("Post Step (default)", ys1, 21, 0.05f, 0, spec);
         
         spec.Flags = flags|ImPlotStairsFlags_PreStep;
         spec.FillAlpha = 0.25f;
-        spec.Marker = ImPlotMarker_Circle;
+        spec.Marker = ImPlotMarker_Auto;
         ImPlot::PlotStairs("Pre Step", ys2, 21, 0.05f, 0, spec);
 
         ImPlot::EndPlot();
@@ -576,7 +576,7 @@ void Demo_ErrorBars() {
         ImPlot::PlotErrorBars("Scatter", xs, lin2, err2, 5, spec);
         spec.Flags = ImPlotErrorBarsFlags_Horizontal;
         ImPlot::PlotErrorBars("Scatter", xs, lin2,  err3, err4, 5, spec);
-        ImPlot::PlotScatter("Scatter", xs, lin2, 5);
+        ImPlot::PlotScatter("Scatter", xs, lin2, 5);        
         
         ImPlot::EndPlot();
     }
@@ -943,7 +943,7 @@ void Demo_RealtimePlots() {
 //-----------------------------------------------------------------------------
 
 void Demo_MarkersAndText() {
-    static ImPlotSpec spec;
+    static ImPlotSpec spec(ImProp_Marker, ImPlotMarker_Auto);
     ImGui::DragFloat("Marker Size",&spec.Size,0.1f,2.0f,10.0f,"%.2f px");
     ImGui::DragFloat("Marker Weight", &spec.LineWeight,0.05f,0.5f,3.0f,"%.2f px");
 
@@ -958,7 +958,6 @@ void Demo_MarkersAndText() {
         // filled markers
         for (int m = 0; m < ImPlotMarker_COUNT; ++m) {
             ImGui::PushID(m);
-            spec.Marker = m;
             spec.FillAlpha = 1.0f;
             ImPlot::PlotLine("##Filled", xs, ys, 2, spec);
             ImGui::PopID();
@@ -968,7 +967,6 @@ void Demo_MarkersAndText() {
         // open markers
         for (int m = 0; m < ImPlotMarker_COUNT; ++m) {
             ImGui::PushID(m);
-            spec.Marker = m;
             spec.FillAlpha = 0.0f;
             ImPlot::PlotLine("##Open", xs, ys, 2, spec);
             ImGui::PopID();
