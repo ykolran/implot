@@ -2689,7 +2689,7 @@ void PlotDigitalEx(const char* label_id, Getter getter, const ImPlotSpec& spec) 
                 pixYMax = ImMax(pixYMax, pixY_chPosOffset);
                 ImVec2 pMin = PlotToPixels(itemData1,IMPLOT_AUTO,IMPLOT_AUTO);
                 ImVec2 pMax = PlotToPixels(itemData2,IMPLOT_AUTO,IMPLOT_AUTO);
-                int pixY_Offset = 0; // TODO: previously 20 to accomodate plot mouse cursor label position; add another padding variable? 
+                int pixY_Offset = (int)gp.Style.DigitalPadding;
                 pMin.y = y_axis.PixelMin + (-gp.DigitalPlotOffset                   - pixY_Offset);
                 pMax.y = y_axis.PixelMin + (-gp.DigitalPlotOffset - pixY_0 - pixY_1 - pixY_Offset);
                 //plot only one rectangle for same digital state
