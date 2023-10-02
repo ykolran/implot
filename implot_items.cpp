@@ -415,9 +415,6 @@ bool BeginItem(const char* label_id, const ImPlotSpec& spec, const ImVec4& item_
         s.Spec.FillColor = IsColorAuto(s.Spec.FillColor) ? s.Spec.LineColor : s.Spec.FillColor;
         s.Spec.FillColor.w *= s.Spec.FillAlpha;
         s.Spec.Marker = item->Marker;
-        // SPEC-TODO: remove
-        s.DigitalBitHeight = gp.Style.DigitalBitHeight;
-        s.DigitalBitGap =  gp.Style.DigitalBitGap;
         // apply highlight mods
         if (item->LegendHovered) {
             if (!ImHasFlag(gp.CurrentItems->Legend.Flags, ImPlotLegendFlags_NoHighlightItem)) {
@@ -2660,6 +2657,7 @@ CALL_INSTANTIATE_FOR_NUMERIC_TYPES()
 //-----------------------------------------------------------------------------
 
 // TODO: Make this behave like all the other plot types (.e. not fixed in y axis)
+// TODO: Currently broken if x or y axis is inverted! (what should happen in this case, anyway?)
 
 template <typename Getter>
 void PlotDigitalEx(const char* label_id, Getter getter, const ImPlotSpec& spec) {
@@ -2680,18 +2678,20 @@ void PlotDigitalEx(const char* label_id, Getter getter, const ImPlotSpec& spec) 
                     itemData1 = itemData2;
                     continue;
                 }
-                if (ImNanOrInf(itemData2.y)) itemData2.y = ImConstrainNan(ImConstrainInf(itemData2.y));
+                if (ImNanOrInf(itemData2.y)) {
+                    itemData2.y = ImConstrainNan(ImConstrainInf(itemData2.y));
+                }
                 int pixY_0 = (int)(s.Spec.LineWeight);
                 itemData1.y = ImMax(0.0, itemData1.y);
-                float pixY_1_float = s.DigitalBitHeight * (float)itemData1.y;
+                float pixY_1_float = s.Spec.Size * (float)itemData1.y;
                 int pixY_1 = (int)(pixY_1_float); //allow only positive values
-                int pixY_chPosOffset = (int)(ImMax(s.DigitalBitHeight, pixY_1_float) + s.DigitalBitGap);
+                int pixY_chPosOffset = (int)(ImMax(s.Spec.Size, pixY_1_float) + gp.Style.DigitalSpacing);
                 pixYMax = ImMax(pixYMax, pixY_chPosOffset);
                 ImVec2 pMin = PlotToPixels(itemData1,IMPLOT_AUTO,IMPLOT_AUTO);
                 ImVec2 pMax = PlotToPixels(itemData2,IMPLOT_AUTO,IMPLOT_AUTO);
-                int pixY_Offset = 0; //20 pixel from bottom due to mouse cursor label
-                pMin.y = (y_axis.PixelMin) + ((-gp.DigitalPlotOffset)                   - pixY_Offset);
-                pMax.y = (y_axis.PixelMin) + ((-gp.DigitalPlotOffset) - pixY_0 - pixY_1 - pixY_Offset);
+                int pixY_Offset = 0; // TODO: previously 20 to accomodate plot mouse cursor label position; add another padding variable? 
+                pMin.y = y_axis.PixelMin + (-gp.DigitalPlotOffset                   - pixY_Offset);
+                pMax.y = y_axis.PixelMin + (-gp.DigitalPlotOffset - pixY_0 - pixY_1 - pixY_Offset);
                 //plot only one rectangle for same digital state
                 while (((i+2) < getter.Count) && (itemData1.y == itemData2.y)) {
                     const int in = (i + 1);
@@ -2700,7 +2700,7 @@ void PlotDigitalEx(const char* label_id, Getter getter, const ImPlotSpec& spec) 
                     pMax.x = PlotToPixels(itemData2,IMPLOT_AUTO,IMPLOT_AUTO).x;
                     i++;
                 }
-                //do not extend plot outside plot range
+                // do not extend plot outside plot range
                 if (pMin.x < x_axis.PixelMin) pMin.x = x_axis.PixelMin;
                 if (pMax.x < x_axis.PixelMin) pMax.x = x_axis.PixelMin;
                 if (pMin.x > x_axis.PixelMax) pMin.x = x_axis.PixelMax - 1; //fix issue related to https://github.com/ocornut/imgui/issues/3976
