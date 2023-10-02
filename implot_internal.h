@@ -1203,6 +1203,7 @@ struct ImPlotNextItemData {
     void Reset() {
         Spec      = ImPlotSpec();
         HasHidden = Hidden = false;
+        HiddenCond = ImPlotCond_None;
     }
 };
 
