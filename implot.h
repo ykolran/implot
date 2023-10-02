@@ -575,7 +575,7 @@ struct ImPlotRect {
     bool Contains(const ImPlotPoint& p) const                                    { return Contains(p.x, p.y);                 }
     bool Contains(double x, double y) const                                      { return X.Contains(x) && Y.Contains(y);     }
     ImPlotPoint Size() const                                                     { return ImPlotPoint(X.Size(), Y.Size());    }
-    ImPlotPoint Clamp(const ImPlotPoint& p)                                      { return Clamp(p.x, p.y);                    }
+    ImPlotPoint Clamp(const ImPlotPoint& p) const                                { return Clamp(p.x, p.y);                    }
     ImPlotPoint Clamp(double x, double y) const                                  { return ImPlotPoint(X.Clamp(x),Y.Clamp(y)); }
     ImPlotPoint Min() const                                                      { return ImPlotPoint(X.Min, Y.Min);          }
     ImPlotPoint Max() const                                                      { return ImPlotPoint(X.Max, Y.Max);          }
