@@ -655,7 +655,7 @@ struct ImPlotAxis
     float                Datum1, Datum2;
 
     ImRect               HoverRect;
-    int                  LabelOffset;
+    ImGuiTextBuffer      Label;
     ImU32                ColorMaj, ColorMin, ColorTick, ColorTxt, ColorBg, ColorHov, ColorAct, ColorHiLi;
 
     bool                 Enabled;
@@ -684,7 +684,6 @@ struct ImPlotAxis
         PickerLevel      = 0;
         Datum1           = Datum2 = 0;
         PixelMin         = PixelMax = 0;
-        LabelOffset      = -1;
         ColorMaj         = ColorMin = ColorTick = ColorTxt = ColorBg = ColorHov = ColorAct = 0;
         ColorHiLi        = IM_COL32_BLACK_TRANS;
         Formatter        = nullptr;
@@ -699,7 +698,6 @@ struct ImPlotAxis
         Scale            = ImPlotScale_Linear;
         TransformForward = TransformInverse = nullptr;
         TransformData    = nullptr;
-        LabelOffset      = -1;
         HasFormatSpec    = false;
         Formatter        = nullptr;
         FormatterData    = nullptr;
@@ -868,7 +866,7 @@ struct ImPlotAxis
         UpdateTransformCache();
     }
 
-    inline bool HasLabel()          const { return LabelOffset != -1 && !ImHasFlag(Flags, ImPlotAxisFlags_NoLabel);                          }
+    inline bool HasLabel()          const { return Label.size() > 0 && !ImHasFlag(Flags, ImPlotAxisFlags_NoLabel); }
     inline bool HasGridLines()      const { return !ImHasFlag(Flags, ImPlotAxisFlags_NoGridLines);                                           }
     inline bool HasTickLabels()     const { return !ImHasFlag(Flags, ImPlotAxisFlags_NoTickLabels);                                          }
     inline bool HasTickMarks()      const { return !ImHasFlag(Flags, ImPlotAxisFlags_NoTickMarks);                                           }
@@ -1103,15 +1101,15 @@ struct ImPlotPlot
 
     inline void SetAxisLabel(ImPlotAxis& axis, const char* label) {
         if (label && ImGui::FindRenderedTextEnd(label, nullptr) != label) {
-            axis.LabelOffset = TextBuffer.size();
-            TextBuffer.append(label, label + strlen(label) + 1);
+            axis.Label.clear();
+            axis.Label.append(label, label + strlen(label) + 1);
         }
         else {
-            axis.LabelOffset = -1;
+            axis.Label.clear();
         }
     }
 
-    inline const char* GetAxisLabel(const ImPlotAxis& axis) const { return TextBuffer.Buf.Data + axis.LabelOffset; }
+    inline const char* GetAxisLabel(const ImPlotAxis& axis) const { return axis.Label.c_str(); }
 };
 
 // Holds subplot data that must persist after EndSubplot

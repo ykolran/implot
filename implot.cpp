@@ -1446,10 +1446,10 @@ void ShowAxisContextMenu(ImPlotAxis& axis, ImPlotAxis* equal_axis, bool /*time_a
     ImGui::CheckboxFlags("Invert",(unsigned int*)&axis.Flags, ImPlotAxisFlags_Invert);
     ImGui::CheckboxFlags("Opposite",(unsigned int*)&axis.Flags, ImPlotAxisFlags_Opposite);
     ImGui::Separator();
-    BeginDisabledControls(axis.LabelOffset == -1);
+    BeginDisabledControls(axis.Label.empty());
     if (ImGui::Checkbox("Label", &label))
         ImFlipFlag(axis.Flags, ImPlotAxisFlags_NoLabel);
-    EndDisabledControls(axis.LabelOffset == -1);
+    EndDisabledControls(axis.Label.empty());
     if (ImGui::Checkbox("Grid Lines", &grid))
         ImFlipFlag(axis.Flags, ImPlotAxisFlags_NoGridLines);
     if (ImGui::Checkbox("Tick Marks", &ticks))
@@ -3210,7 +3210,22 @@ void EndPlot() {
         if (can_ctx && x_axis.Hovered && x_axis.HasMenus())
             ImGui::OpenPopup("##XContext");
         if (ImGui::BeginPopup("##XContext")) {
-            ImGui::Text(x_axis.HasLabel() ? plot.GetAxisLabel(x_axis) :  i == 0 ? "X-Axis" : "X-Axis %d", i + 1);
+            char label[20];
+            if (x_axis.HasLabel())
+                snprintf(label, 20, "%s", plot.GetAxisLabel(x_axis));
+            else if (i == 0)
+                snprintf(label, 20, "X-Axis");
+            else
+                snprintf(label, 20, "X-Axis %d", i + 1);
+            if (ImHasFlag(x_axis.Flags, ImPlotAxisFlags_EditableLabel))
+            {
+                if (ImGui::InputText("##XAxisLabel", label, 20))
+                    plot.SetAxisLabel(x_axis, label);
+            }
+            else
+            {
+                ImGui::Text(label);
+            }
             ImGui::Separator();
             ShowAxisContextMenu(x_axis, axis_equal ? x_axis.OrthoAxis : nullptr, true);
             ImGui::EndPopup();
@@ -3223,7 +3238,22 @@ void EndPlot() {
         if (can_ctx && y_axis.Hovered && y_axis.HasMenus())
             ImGui::OpenPopup("##YContext");
         if (ImGui::BeginPopup("##YContext")) {
-            ImGui::Text(y_axis.HasLabel() ? plot.GetAxisLabel(y_axis) : i == 0 ? "Y-Axis" : "Y-Axis %d", i + 1);
+            char label[20];
+            if (y_axis.HasLabel())
+                snprintf(label, 20, "%s", plot.GetAxisLabel(y_axis));
+            else if (i == 0)
+                snprintf(label, 20, "Y-Axis");
+            else
+                snprintf(label, 20, "Y-Axis %d", i + 1);
+            if (ImHasFlag(y_axis.Flags, ImPlotAxisFlags_EditableLabel))
+            {
+                if (ImGui::InputText("##YAxisLabel", label, 20))
+                    plot.SetAxisLabel(y_axis, label);
+            }
+            else
+            {
+                ImGui::Text(label);
+            }
             ImGui::Separator();
             ShowAxisContextMenu(y_axis, axis_equal ? y_axis.OrthoAxis : nullptr, false);
             ImGui::EndPopup();
@@ -5198,7 +5228,7 @@ void ShowTicksMetrics(const ImPlotTicker& ticker) {
 }
 
 void ShowAxisMetrics(const ImPlotPlot& plot, const ImPlotAxis& axis) {
-    ImGui::BulletText("Label: %s", axis.LabelOffset == -1 ? "[none]" : plot.GetAxisLabel(axis));
+    ImGui::BulletText("Label: %s", axis.Label.empty() ? "[none]" : plot.GetAxisLabel(axis));
     ImGui::BulletText("Flags: 0x%08X", axis.Flags);
     ImGui::BulletText("Range: [%f,%f]",axis.Range.Min, axis.Range.Max);
     ImGui::BulletText("Pixels: %f", axis.PixelSize());
