@@ -254,6 +254,7 @@ void ShowInputMapping() {
     InputMapping("OverrideMod",nullptr,&map.OverrideMod);
     InputMapping("ZoomMod",nullptr,&map.ZoomMod);
     ImGui::SliderFloat("ZoomRate",&map.ZoomRate,-1,1);
+    ImGui::SliderFloat("MinSelectionBox",&map.MinSelectionBox,-20,20);
 }
 
 void Demo_Config() {

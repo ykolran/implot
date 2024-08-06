@@ -575,6 +575,7 @@ struct ImPlotInputMap {
     int              OverrideMod;   // Ctrl   when held, all input is ignored; used to enable axis/plots as DND sources
     int              ZoomMod;       // none   optional modifier that must be held for scroll wheel zooming
     float            ZoomRate;      // 0.1f   zoom rate for scroll (e.g. 0.1f = 10% plot range every scroll click); make negative to invert
+    float            MinSelectionBox;  // 5.0f   minimum size to allow selection box for an axis
     IMPLOT_API ImPlotInputMap();
 };
 

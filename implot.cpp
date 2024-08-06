@@ -1814,8 +1814,27 @@ static inline void RenderGridLinesY(ImDrawList& DrawList, const ImPlotTicker& ti
 static inline void RenderSelectionRect(ImDrawList& DrawList, const ImVec2& p_min, const ImVec2& p_max, const ImVec4& col) {
     const ImU32 col_bg = ImGui::GetColorU32(col * ImVec4(1,1,1,0.25f));
     const ImU32 col_bd = ImGui::GetColorU32(col);
-    DrawList.AddRectFilled(p_min, p_max, col_bg);
-    DrawList.AddRect(p_min, p_max, col_bd);
+    const ImVec2 d = p_max - p_min;
+
+    const float min = GImPlot->InputMap.MinSelectionBox;
+    
+    if (ImFabs(d.x) <= min)
+    {
+        DrawList.AddLine(ImVec2(p_min.x, p_min.y), ImVec2(p_min.x, p_max.y), col_bd);
+        DrawList.AddLine(ImVec2(p_min.x - min * 2, p_min.y), ImVec2(p_min.x + min * 2, p_min.y), col_bd);
+        DrawList.AddLine(ImVec2(p_min.x - min * 2, p_max.y), ImVec2(p_min.x + min * 2, p_max.y), col_bd);
+    }
+    else if (ImFabs(d.y) <= min)
+    {
+        DrawList.AddLine(ImVec2(p_min.x, p_min.y), ImVec2(p_max.x, p_min.y), col_bd);
+        DrawList.AddLine(ImVec2(p_min.x, p_min.y - min * 2), ImVec2(p_min.x, p_min.y + min * 2), col_bd);
+        DrawList.AddLine(ImVec2(p_max.x, p_min.y - min * 2), ImVec2(p_max.x, p_min.y + min * 2), col_bd);
+    }
+    else
+    {
+        DrawList.AddRectFilled(p_min, p_max, col_bg);
+        DrawList.AddRect(p_min, p_max, col_bd);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -2032,8 +2051,8 @@ bool UpdateInput(ImPlotPlot& plot) {
 
     if (plot.Selecting) {
         const ImVec2 d = plot.SelectStart - IO.MousePos;
-        const bool x_can_change = !ImHasFlag(IO.KeyMods,gp.InputMap.SelectHorzMod) && ImFabs(d.x) > 2;
-        const bool y_can_change = !ImHasFlag(IO.KeyMods,gp.InputMap.SelectVertMod) && ImFabs(d.y) > 2;
+        const bool x_can_change = !ImHasFlag(IO.KeyMods,gp.InputMap.SelectHorzMod) && ImFabs(d.x) > gp.InputMap.MinSelectionBox;
+        const bool y_can_change = !ImHasFlag(IO.KeyMods,gp.InputMap.SelectVertMod) && ImFabs(d.y) > gp.InputMap.MinSelectionBox;
         // confirm
         if (IO.MouseReleased[gp.InputMap.Select]) {
             for (int i = 0; i < IMPLOT_NUM_X_AXES; i++) {
@@ -4827,6 +4846,7 @@ void MapInputDefault(ImPlotInputMap* dst) {
     map.OverrideMod     = ImGuiMod_Ctrl;
     map.ZoomMod         = ImGuiMod_None;
     map.ZoomRate        = 0.1f;
+    map.MinSelectionBox = 5.0f;
 }
 
 void MapInputReverse(ImPlotInputMap* dst) {
@@ -4843,6 +4863,7 @@ void MapInputReverse(ImPlotInputMap* dst) {
     map.OverrideMod     = ImGuiMod_Ctrl;
     map.ZoomMod         = ImGuiMod_None;
     map.ZoomRate        = 0.1f;
+    map.MinSelectionBox = 5.0f;
 }
 
 //-----------------------------------------------------------------------------
