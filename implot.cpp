@@ -3230,7 +3230,7 @@ void EndPlot() {
             ImGui::OpenPopup("##XContext");
         if (ImGui::BeginPopup("##XContext")) {
             char label[20];
-            if (x_axis.HasLabel())
+            if (x_axis.Label.size() > 0)
                 snprintf(label, 20, "%s", plot.GetAxisLabel(x_axis));
             else if (i == 0)
                 snprintf(label, 20, "X-Axis");
@@ -3258,7 +3258,7 @@ void EndPlot() {
             ImGui::OpenPopup("##YContext");
         if (ImGui::BeginPopup("##YContext")) {
             char label[20];
-            if (y_axis.HasLabel())
+            if (y_axis.Label.size() > 0)
                 snprintf(label, 20, "%s", plot.GetAxisLabel(y_axis));
             else if (i == 0)
                 snprintf(label, 20, "Y-Axis");
