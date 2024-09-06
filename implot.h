@@ -209,6 +209,7 @@ enum ImPlotDragToolFlags_ {
     ImPlotDragToolFlags_NoFit     = 1 << 1, // the drag tool won't be considered for plot fits
     ImPlotDragToolFlags_NoInputs  = 1 << 2, // lock the tool from user inputs
     ImPlotDragToolFlags_Delayed   = 1 << 3, // tool rendering will be delayed one frame; useful when applying position-constraints
+    ImPlotDragToolFlags_NoResize  = 1 << 4, // do not allow resizing of the rect (only moving)
 };
 
 // Flags for ColormapScale
@@ -945,6 +946,7 @@ IMPLOT_API bool DragRect(int id, double* x1, double* y1, double* x2, double* y2,
 IMPLOT_API void Annotation(double x, double y, const ImVec4& col, const ImVec2& pix_offset, bool clamp, bool round = false);
 IMPLOT_API void Annotation(double x, double y, const ImVec4& col, const ImVec2& pix_offset, bool clamp, const char* fmt, ...)           IM_FMTARGS(6);
 IMPLOT_API void AnnotationV(double x, double y, const ImVec4& col, const ImVec2& pix_offset, bool clamp, const char* fmt, va_list args) IM_FMTLIST(6);
+IMPLOT_API void GetAnnotationRect(int i, ImVec2& pos, ImVec2& size);
 
 // Shows a x-axis tag at the specified coordinate value.
 IMPLOT_API void TagX(double x, const ImVec4& col, bool round = false);
