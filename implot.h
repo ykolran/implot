@@ -192,6 +192,7 @@ enum ImPlotLegendFlags_ {
     ImPlotLegendFlags_Outside         = 1 << 4, // legend will be rendered outside of the plot area
     ImPlotLegendFlags_Horizontal      = 1 << 5, // legend entries will be displayed horizontally
     ImPlotLegendFlags_Sort            = 1 << 6, // legend entries will be displayed in alphabetical order
+    ImPlotLegendFlags_Markers         = 1 << 7  // legend entries will be displayed with markers corresponding to the item markers
 };
 
 // Options for mouse hover text (see SetupMouseText)

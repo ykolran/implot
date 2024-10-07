@@ -939,6 +939,8 @@ struct ImPlotItem
 {
     ImGuiID      ID;
     ImU32        Color;
+    ImPlotMarker Marker;
+    float        MarkerFillW;
     ImRect       LegendHoverRect;
     int          NameOffset;
     bool         Show;
@@ -948,6 +950,8 @@ struct ImPlotItem
     ImPlotItem() {
         ID            = 0;
         Color         = IM_COL32_WHITE;
+        Marker        = ImPlotMarker_None;
+        MarkerFillW   = 0;
         NameOffset    = -1;
         Show          = true;
         SeenThisFrame = false;

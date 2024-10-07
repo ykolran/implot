@@ -617,6 +617,9 @@ int LegendSortingComp(const void* _a, const void* _b) {
     return strcmp(label_a,label_b);
 }
 
+// Forward declaration for DrawLegendMarker defined in implot_items
+void DrawLegendMarker(ImDrawList& DrawList, ImPlotItem* item, ImRect icon_bb, ImU32 col_icon);
+
 bool ShowLegendEntries(ImPlotItemGroup& items, const ImRect& legend_bb, bool hovered, const ImVec2& pad, const ImVec2& spacing, bool vertical, ImDrawList& DrawList) {
     // vars
     const float txt_ht      = ImGui::GetTextLineHeight();
@@ -696,7 +699,11 @@ bool ShowLegendEntries(ImPlotItemGroup& items, const ImRect& legend_bb, bool hov
         else
             col_icon = item->Show ? col_item : col_txt_dis;
 
-        DrawList.AddRectFilled(icon_bb.Min, icon_bb.Max, col_icon);
+        if (!ImHasFlag(items.Legend.Flags, ImPlotLegendFlags_Markers))
+            DrawList.AddRectFilled(icon_bb.Min, icon_bb.Max, col_icon);
+        else
+            DrawLegendMarker(DrawList, item, icon_bb, col_icon);
+        
         const char* text_display_end = ImGui::FindRenderedTextEnd(label, nullptr);
         if (label != text_display_end)
             DrawList.AddText(top_left + ImVec2(icon_size, 0), item->Show ? col_txt_hl  : col_txt_dis, label, text_display_end);

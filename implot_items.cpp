@@ -436,6 +436,8 @@ bool BeginItem(const char* label_id, ImPlotItemFlags flags, ImPlotCol recolor_fr
         // stage next item style vars
         s.LineWeight         = s.LineWeight       < 0 ? gp.Style.LineWeight       : s.LineWeight;
         s.Marker             = s.Marker           < 0 ? gp.Style.Marker           : s.Marker;
+        item->Marker = s.Marker;
+        item->Color = ImGui::ColorConvertFloat4ToU32(s.Colors[ImPlotCol_MarkerFill]);
         s.MarkerSize         = s.MarkerSize       < 0 ? gp.Style.MarkerSize       : s.MarkerSize;
         s.MarkerWeight       = s.MarkerWeight     < 0 ? gp.Style.MarkerWeight     : s.MarkerWeight;
         s.FillAlpha          = s.FillAlpha        < 0 ? gp.Style.FillAlpha        : s.FillAlpha;
@@ -465,6 +467,7 @@ bool BeginItem(const char* label_id, ImPlotItemFlags flags, ImPlotCol recolor_fr
         s.RenderLine       = s.Colors[ImPlotCol_Line].w          > 0 && s.LineWeight > 0;
         s.RenderFill       = s.Colors[ImPlotCol_Fill].w          > 0;
         s.RenderMarkerFill = s.Colors[ImPlotCol_MarkerFill].w    > 0;
+        item->MarkerFillW = s.Colors[ImPlotCol_MarkerFill].w;
         s.RenderMarkerLine = s.Colors[ImPlotCol_MarkerOutline].w > 0 && s.MarkerWeight > 0;
         // push rendering clip rect
         PushPlotClipRect();
@@ -2803,6 +2806,77 @@ void PlotText(const char* text, double x, double y, const ImVec2& pixel_offset, 
 void PlotDummy(const char* label_id, ImPlotDummyFlags flags) {
     if (BeginItem(label_id, flags, ImPlotCol_Line))
         EndItem();
+}
+
+// Markers for legend
+template<int POLY_SIZE>
+void DrawLegendMarkerFilled(const ImVec2 (&MarkerPoly)[POLY_SIZE], ImDrawList& DrawList, ImPlotItem* item, ImRect icon_bb, ImU32 col_icon)
+{
+    ImVec2 poly[POLY_SIZE];
+    for (int i = 0; i < POLY_SIZE; i++)
+        poly[i] = icon_bb.GetCenter() + MarkerPoly[i] * 0.5 * icon_bb.GetWidth();
+    DrawList.AddConvexPolyFilled(poly, POLY_SIZE, ImAlphaU32(col_icon, item->MarkerFillW));
+}
+
+template<int POLY_SIZE>
+void DrawLegendMarkerLine(const ImVec2 (&MarkerPoly)[POLY_SIZE], ImDrawList& DrawList, ImPlotItem* item, ImRect icon_bb, ImU32 col_icon)
+{
+   ImVec2 line[2];
+   for (int i = 0; i < POLY_SIZE - 1; i += 2)
+   {
+       line[0] = icon_bb.GetCenter() + MarkerPoly[i] * 0.5 * icon_bb.GetWidth();
+       line[1] = icon_bb.GetCenter() + MarkerPoly[i + 1] * 0.5 * icon_bb.GetWidth();
+       DrawList.AddPolyline(line, 2, col_icon, 0, 0.1f);
+   }
+}
+
+void DrawLegendMarker(ImDrawList& DrawList, ImPlotItem* item, ImRect icon_bb, ImU32 col_icon)
+{
+    static const int MAX_POLY_SIZE = 20;
+    ImVec2 poly[MAX_POLY_SIZE];
+    int polyIdx = 0;
+
+    switch (item->Marker)
+    {
+    case ImPlotMarker_Circle:
+        DrawLegendMarkerFilled(MARKER_FILL_CIRCLE, DrawList, item, icon_bb, col_icon);
+        DrawLegendMarkerLine(MARKER_LINE_CIRCLE, DrawList, item, icon_bb, col_icon);
+        break;
+    case ImPlotMarker_Diamond:
+        DrawLegendMarkerFilled(MARKER_FILL_DIAMOND, DrawList, item, icon_bb, col_icon);
+        DrawLegendMarkerLine(MARKER_LINE_DIAMOND, DrawList, item, icon_bb, col_icon);
+        break;
+    case ImPlotMarker_Up:
+        DrawLegendMarkerFilled(MARKER_FILL_UP, DrawList, item, icon_bb, col_icon);
+        DrawLegendMarkerLine(MARKER_LINE_UP, DrawList, item, icon_bb, col_icon);
+        break;
+    case ImPlotMarker_Down:
+        DrawLegendMarkerFilled(MARKER_FILL_DOWN, DrawList, item, icon_bb, col_icon);
+        DrawLegendMarkerLine(MARKER_LINE_DOWN, DrawList, item, icon_bb, col_icon);
+        break;
+    case ImPlotMarker_Left:
+        DrawLegendMarkerFilled(MARKER_FILL_LEFT, DrawList, item, icon_bb, col_icon);
+        DrawLegendMarkerLine(MARKER_LINE_LEFT, DrawList, item, icon_bb, col_icon);
+        break;
+    case ImPlotMarker_Right:
+        DrawLegendMarkerFilled(MARKER_FILL_RIGHT, DrawList, item, icon_bb, col_icon);
+        DrawLegendMarkerLine(MARKER_LINE_RIGHT, DrawList, item, icon_bb, col_icon);
+        break;
+    case ImPlotMarker_Cross:
+        DrawLegendMarkerLine(MARKER_LINE_CROSS, DrawList, item, icon_bb, col_icon);
+        break;
+    case ImPlotMarker_Plus:
+        DrawLegendMarkerLine(MARKER_LINE_PLUS, DrawList, item, icon_bb, col_icon);
+        break;
+    case ImPlotMarker_Asterisk:
+        DrawLegendMarkerLine(MARKER_LINE_ASTERISK, DrawList, item, icon_bb, col_icon);
+        break;
+    case ImPlotMarker_Square:
+    default:
+        DrawLegendMarkerFilled(MARKER_FILL_SQUARE, DrawList, item, icon_bb, col_icon);
+        DrawLegendMarkerLine(MARKER_LINE_SQUARE, DrawList, item, icon_bb, col_icon);
+        break;
+    }
 }
 
 } // namespace ImPlot
